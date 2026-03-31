@@ -1,0 +1,195 @@
+openapi: 3.0.0
+info:
+  title: Persons API
+  description: REST API для взаимодействия с Candidate сервисом.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8082
+
+paths:
+  /v1/candidate:
+    post:
+      summary: Регистрация кандидата
+      operationId: "registration"
+      tags:
+        - Candidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateWriteDto'
+      responses:
+        '201':
+          description: Успешная регистрация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateWriteResponseDto'
+    get:
+      summary: Get candidates
+      operationId: "findAllByExperience"
+      tags:
+        - Candidate
+      parameters:
+        - in: query
+          name: experience
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '201':
+          description: Successfully found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndividualPageDto'
+
+  /v1/candidate/{id}:
+    get:
+      summary: Get candidate by id
+      operationId: "findById"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Successfully found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndividualDto'
+    put:
+      summary: Update individual
+      operationId: "update"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CandidateWriteDto'
+      responses:
+        '201':
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateWriteResponseDto'
+    delete:
+      summary: soft delete person by id
+      operationId: "delete"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully deleted
+
+  /v1/persons/compensate-registration/{id}:
+    delete:
+      summary: compensate-registration, hard delete person by id
+      operationId: "compensateRegistration"
+      tags:
+        - Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successfully deleted
+
+
+components:
+  schemas:
+    CandidateWriteResponseDto:
+      type: object
+      required: [ id ]
+      properties:
+        id:
+          type: string
+
+    CandidateWriteDto:
+      type: object
+      required: [
+        email,
+        firstName,
+        lastName,
+        experience,
+        level,
+        current_salary
+      ]
+      properties:
+        firstName:
+          type: string
+        level:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        experience:
+          type: number
+        current_salary:
+          type: number
+
+    IndividualDto:
+      type: object
+      required: [
+        email,
+        firstName,
+        lastName,
+        experience,
+        level,
+        current_salary
+      ]
+      properties:
+        firstName:
+          type: string
+        level:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        experience:
+          type: number
+        current_salary:
+          type: number
+
+    IndividualPageDto:
+      type: object
+      required: [ ]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndividualDto'
