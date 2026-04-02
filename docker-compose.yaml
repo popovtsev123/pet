@@ -193,7 +193,7 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /var/lib/kafka/data
@@ -202,6 +202,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     volumes:
       - kafka_data:/var/lib/kafka/data
+    networks:
+      - shared-network
 
   redis:
     image: redis:latest
@@ -227,6 +229,8 @@ services:
       timeout: 10s
       retries: 5
     restart: unless-stopped
+    networks:
+      - shared-network
 
   mongodb:
     image: mongo:latest
@@ -242,6 +246,8 @@ services:
       # - ./init-scripts:/docker-entrypoint-initdb.d  # Optional: custom init scripts
 #    networks:
 #      - mongodb_network
+#      shared-network:
+#        driver: bridge
 
 volumes:
   artifacts:
@@ -254,6 +260,9 @@ volumes:
   redis_data:
   mongodb_data:
   kafka_data:
+
+  shared-network:
+    driver: bridge
 
 
 

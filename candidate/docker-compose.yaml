@@ -1,0 +1,14 @@
+services:
+  candidate:
+    build:
+      context: ./
+    ports:
+      - "8093:8093"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true

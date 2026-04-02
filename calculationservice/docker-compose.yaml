@@ -1,0 +1,15 @@
+services:
+  calculation-service:
+    build:
+      context: ./
+    ports:
+      - "8093:8093"
+    environment:
+      SPRING_REDIS_HOST: redis
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true

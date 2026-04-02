@@ -51,7 +51,6 @@ dependencyManagement {
 configurations.all { resolutionStrategy.cacheChangingModulesFor(0, "seconds") }
 
 dependencies {
-	// SPRING
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -60,7 +59,6 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:${versions["springCloudStarterOpenfeign"]}")
 	implementation("org.springframework.kafka:spring-kafka:3.2.10")
 
-	// OBSERVABILITY
 	implementation("io.micrometer:micrometer-registry-prometheus")
 	implementation("io.github.openfeign:feign-micrometer:${versions["feignMicrometerVersion"]}")
 	implementation("io.opentelemetry:opentelemetry-exporter-otlp")
@@ -73,12 +71,10 @@ dependencies {
 	implementation("commons-validator:commons-validator:1.7")
 
 
-	// PERSISTENCE
 	implementation("org.hibernate.orm:hibernate-envers:${versions["hibernateEnversVersion"]}")
 	implementation("org.postgresql:postgresql")
 	implementation("org.flywaydb:flyway-database-postgresql")
 
-	// HELPERS
 	compileOnly("org.projectlombok:lombok")
 	compileOnly("org.mapstruct:mapstruct:${versions["mapstructVersion"]}")
 	compileOnly("com.google.code.findbugs:jsr305:${versions["comGoogleCodeFindbugs"]}")
@@ -87,7 +83,6 @@ dependencies {
 	implementation("javax.validation:validation-api:${versions["javaxValidationApiVersion"]}")
 	implementation("javax.annotation:javax.annotation-api:${versions["javaxAnnotationApiVersion"]}")
 
-	// TEST
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testCompileOnly("org.projectlombok:lombok")
@@ -101,12 +96,6 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
-
-/*
-──────────────────────────────────────────────────────
-============== Api generation ==============
-──────────────────────────────────────────────────────
-*/
 
 val openApiDir = file("${rootDir}/openapi")
 
@@ -197,11 +186,6 @@ tasks.named("compileJava") {
 	dependsOn("generateAllOpenApi")
 }
 
-/*
-──────────────────────────────────────────────────────
-============== Building jars ==============
-──────────────────────────────────────────────────────
-*/
 
 tasks.named("build") {
 	dependsOn(generatedJars)
@@ -243,11 +227,6 @@ val generatedJars = foundSpecifications.map { specFile ->
 	}
 }
 
-/*
-──────────────────────────────────────────────────────
-============== Resolve NEXUS credentials ==============
-──────────────────────────────────────────────────────
-*/
 
 file(".env").takeIf { it.exists() }?.readLines()?.forEach {
 	val (k, v) = it.split("=", limit = 2)
@@ -265,12 +244,6 @@ if (nexusUrl.isNullOrBlank() || nexusUser.isNullOrBlank() || nexusPassword.isNul
 				"NEXUS_URL, NEXUS_USERNAME, NEXUS_PASSWORD"
 	)
 }
-
-/*
-──────────────────────────────────────────────────────
-============== Nexus Publishing ==============
-──────────────────────────────────────────────────────
-*/
 
 publishing {
 	publications {
