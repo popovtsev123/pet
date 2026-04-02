@@ -58,6 +58,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions["springdocOpenapiStarterWebmvcUiVersion"]}")
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:${versions["springCloudStarterOpenfeign"]}")
+	implementation("org.springframework.kafka:spring-kafka:3.2.10")
 
 	// OBSERVABILITY
 	implementation("io.micrometer:micrometer-registry-prometheus")
@@ -69,6 +70,8 @@ dependencies {
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter")
 	implementation("ch.qos.logback:logback-classic:${versions["logbackClassicVersion"]}")
+	implementation("commons-validator:commons-validator:1.7")
+
 
 	// PERSISTENCE
 	implementation("org.hibernate.orm:hibernate-envers:${versions["hibernateEnversVersion"]}")

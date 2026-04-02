@@ -26,6 +26,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CandidateWriteResponseDto'
+
     get:
       summary: Get candidates
       operationId: "findAllByExperience"
@@ -47,19 +48,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/IndividualPageDto'
 
+  /v1/candidates/{level}:
+    get:
+      summary: Get candidates
+      operationId: "findAllByLevel"
+      tags:
+        - Candidate
+      parameters:
+        - in: path
+          name: level
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '201':
+          description: Successfully found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndividualPageDto'
+
   /v1/candidate/{id}:
     get:
       summary: Get candidate by id
       operationId: "findById"
       tags:
-        - Person
+        - Candidate
       parameters:
         - in: path
           name: id
           required: true
           schema:
-            type: string
-            format: uuid
+            type: long
+            format: id
       responses:
         '201':
           description: Successfully found
@@ -92,39 +115,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CandidateWriteResponseDto'
-    delete:
-      summary: soft delete person by id
-      operationId: "delete"
-      tags:
-        - Person
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Successfully deleted
-
-  /v1/persons/compensate-registration/{id}:
-    delete:
-      summary: compensate-registration, hard delete person by id
-      operationId: "compensateRegistration"
-      tags:
-        - Person
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Successfully deleted
-
 
 components:
   schemas:
@@ -133,7 +123,7 @@ components:
       required: [ id ]
       properties:
         id:
-          type: string
+          type: long
 
     CandidateWriteDto:
       type: object
@@ -156,7 +146,7 @@ components:
           type: string
           format: email
         experience:
-          type: number
+          type: integer
         current_salary:
           type: number
 
@@ -181,7 +171,7 @@ components:
           type: string
           format: email
         experience:
-          type: number
+          type: integer
         current_salary:
           type: number
 

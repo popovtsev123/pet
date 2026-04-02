@@ -1,65 +1,59 @@
-  server:
-    port: 8092
+server:
+  port: 8092
 
-  spring:
-    datasource:
-      url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5434}/candidate
-      username: postgres
-      password: postgres
-      driver-class-name: org.postgresql.Driver
-      flyway:
-        enabled: true
-        validate-on-migrate: true
-        baseline-on-migrate: true
-        locations: classpath:db/migration
-      jpa:
-        hibernate:
-          ddl-auto: validate
-        properties:
-          org.hibernate:
-            envers:
-              autoRegisterListeners: true
-              audit_table_suffix: _history
-              default_schema: candidate_history
-              store_data_at_delete: true
-              revision_field_name: revision
-              revision_type_field_name: revision_type
-              revision_sequence_name: candidate_history.revinfo_seq
-            hibernate:
-              default_schema: candidate
-              show_sql: ${SHOW_SQL:true}
-              format_sql: ${FORMAT_SQL:true}
-              highlight_sql: ${HIGHLIGHT_SQL:true}
-              session.events.log.LOG_QUERIES_SLOWER_THAN_MS: ${SLOW_SQL_QUERY_INDICATOR_MS:1500}
-              hbm2ddl:
-                auto: validate
-        database-platform: org.hibernate.dialect.PostgreSQLDialect
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:15432/postgres  # подключаемся к БД postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
 
-    management:
-      endpoints:
-        web:
-          exposure:
-            include: health,info,prometheus
-      endpoint:
-        prometheus:
-          access: read_only
-      prometheus:
-        metrics:
-          export:
-            enabled: true
-      tracing:
-        enabled: true
-        sampling:
-          probability: 1.0
+  jpa:
+    hibernate:
+      ddl-auto: validate    # Hibernate проверяет, что таблицы есть, не создаёт их
+    properties:
+      hibernate:
+        default_schema: candidate
+        show_sql: true
+        format_sql: true
+        highlight_sql: true
+      org.hibernate.envers:
+        autoRegisterListeners: true
+        audit_table_suffix: _history
+        default_schema: candidate_history
+        store_data_at_delete: true
+        revision_field_name: revision
+        revision_type_field_name: revision_type
+        revision_sequence_name: candidate_history.revinfo_seq
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-    otel:
-      exporter:
-        otlp:
-          endpoint: ${OTLP_EXPORTER_ENDPOINT:http://localhost:4318}
-          protocol: http/protobuf
-      logs:
-        exporter: none
-      metrics:
-        exporter: none
-    logging:
-      config: "classpath:logback.xml"
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    schemas: candidate,candidate_history
+    locations: classpath:db/migration
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: true
+        spring.json.type.mapping: candidateCreated:com.example.event.CandidateCreatedEvent
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+otel:
+  exporter:
+    otlp:
+      endpoint: http://localhost:4318
+      protocol: http/protobuf
+  logs:
+    exporter: none
+  metrics:
+    exporter: none
