@@ -18,6 +18,7 @@ import ru.offer.candidate.repository.CandidateRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -93,6 +94,7 @@ public class CandidateService {
                     @Override
                     public void afterCommit() {
                         CandidateCreatedEvent event = new CandidateCreatedEvent(
+                                UUID.randomUUID(),
                                 candidate.getId(),
                                 candidate.getFirstName(),
                                 candidate.getLevel().getLevelName(),
