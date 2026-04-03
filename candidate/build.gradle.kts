@@ -10,8 +10,6 @@ val versions = mapOf(
 	"springCloudStarterOpenfeign" to "4.1.1",
 	"javaxServletApiVersion" to "2.5",
 	"logbackClassicVersion" to "1.5.18",
-	"comGoogleCodeFindbugs" to "3.0.2",
-	"springCloudStarterOpenfeign" to "4.1.1",
 	"hibernateEnversVersion" to "6.4.4.Final",
 	"testContainersVersion" to "1.19.3",
 	"junitJupiterVersion" to "5.10.0",
@@ -70,7 +68,6 @@ dependencies {
 	implementation("ch.qos.logback:logback-classic:${versions["logbackClassicVersion"]}")
 	implementation("commons-validator:commons-validator:1.7")
 
-
 	implementation("org.hibernate.orm:hibernate-envers:${versions["hibernateEnversVersion"]}")
 	implementation("org.postgresql:postgresql")
 	implementation("org.flywaydb:flyway-database-postgresql")
@@ -97,15 +94,24 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-val openApiDir = file("${rootDir}/openapi")
+// Отключаем создание обычного JAR (plain)
+tasks.jar {
+	enabled = false
+}
 
+// Настраиваем исполняемый JAR
+tasks.bootJar {
+	archiveFileName.set("app.jar")
+}
+
+// Остальной код (OpenAPI генерация, публикация) без изменений
+val openApiDir = file("${rootDir}/openapi")
 val foundSpecifications = openApiDir.listFiles { f -> f.extension in listOf("yaml", "yml") } ?: emptyArray()
 logger.lifecycle("Found ${foundSpecifications.size} specifications: " + foundSpecifications.joinToString { it.name })
 
 foundSpecifications.forEach { specFile ->
 	val ourDir = getAbsolutePath(specFile.nameWithoutExtension)
 	val packageName = defineJavaPackageName(specFile.nameWithoutExtension)
-
 	val taskName = buildGenerateApiTaskName(specFile.nameWithoutExtension)
 	logger.lifecycle("Register task ${taskName} from ${ourDir.get()}")
 	val basePackage = "ru.offer.${packageName}"
@@ -114,7 +120,6 @@ foundSpecifications.forEach { specFile ->
 		generatorName.set("spring")
 		inputSpec.set(specFile.absolutePath)
 		outputDir.set(ourDir)
-
 		configOptions.set(
 			mapOf(
 				"library" to "spring-cloud",
@@ -128,13 +133,11 @@ foundSpecifications.forEach { specFile ->
 				"configPackage" to "${basePackage}.config"
 			)
 		)
-
 		doFirst {
 			logger.lifecycle("$taskName: starting generation from ${specFile.name}")
 		}
 	}
 }
-
 
 fun getAbsolutePath(nameWithoutExtension: String): Provider<String> {
 	return layout.buildDirectory
@@ -148,20 +151,14 @@ fun defineJavaPackageName(name: String): String {
 	return match?.value ?: beforeDash.lowercase()
 }
 
-fun buildGenerateApiTaskName(name: String): String {
-	return buildTaskName("generate", name)
-}
-
-fun buildJarTaskName(name: String): String {
-	return buildTaskName("jar", name)
-}
+fun buildGenerateApiTaskName(name: String): String = buildTaskName("generate", name)
+fun buildJarTaskName(name: String): String = buildTaskName("jar", name)
 
 fun buildTaskName(taskPrefix: String, name: String): String {
 	val prepareName = name
 		.split(Regex("[^A-Za-z0-9]"))
 		.filter { it.isNotBlank() }
 		.joinToString("") { it.replaceFirstChar(Char::uppercase) }
-
 	return "${taskPrefix}-${prepareName}"
 }
 
@@ -186,7 +183,6 @@ tasks.named("compileJava") {
 	dependsOn("generateAllOpenApi")
 }
 
-
 tasks.named("build") {
 	dependsOn(generatedJars)
 }
@@ -197,7 +193,6 @@ val generatedJars = foundSpecifications.map { specFile ->
 	val jarTaskName = buildJarTaskName(name)
 	val outDirProvider = getAbsolutePath(name)
 	val generateSrcDir = outDirProvider.map { File(it).resolve("src/main/java") }
-
 	val sourcesSetName = name
 
 	val sourceSet = sourceSets.create(sourcesSetName) {
@@ -211,22 +206,18 @@ val generatedJars = foundSpecifications.map { specFile ->
 		destinationDirectory.set(layout.buildDirectory.dir("classes/${sourcesSetName}"))
 	}
 
-
 	tasks.register<Jar>(jarTaskName) {
 		group = "build"
 		archiveBaseName.set(name)
 		destinationDirectory.set(layout.buildDirectory.dir("libs"))
-
 		val classOutput = layout.buildDirectory.dir("classes/${sourcesSetName}")
 		from(classOutput)
 		dependsOn(compileTaskName)
-
 		doFirst {
 			println("Building JAR for $name from compiled classes in ${classOutput.get().asFile}")
 		}
 	}
 }
-
 
 file(".env").takeIf { it.exists() }?.readLines()?.forEach {
 	val (k, v) = it.split("=", limit = 2)
@@ -253,16 +244,13 @@ publishing {
 			var jarFile = file("build/libs")
 				.listFiles()
 				?.firstOrNull { it.name.contains(name) && (it.extension == "jar" || it.extension == "zip") }
-
 			if (jarFile != null) {
 				logger.lifecycle("publishing: ${jarFile.name}")
-
 				create<MavenPublication>("publish${name.replaceFirstChar(Char::uppercase)}Jar") {
 					artifact(jarFile)
 					groupId = "net.proselyte"
 					artifactId = jarBaseName
 					version = "1.0.0-SNAPSHOT"
-
 					pom {
 						this.name.set("Generated API $jarBaseName")
 						this.description.set("OpenAPI generated code for $jarBaseName")
@@ -271,7 +259,6 @@ publishing {
 			}
 		}
 	}
-
 	repositories {
 		maven {
 			name = "nexus"

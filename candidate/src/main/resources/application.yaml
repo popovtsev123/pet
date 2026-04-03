@@ -3,14 +3,14 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:15432/postgres  # подключаемся к БД postgres
+    url: jdbc:postgresql://localhost:15432/candidate
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate    # Hibernate проверяет, что таблицы есть, не создаёт их
+      ddl-auto: validate
     properties:
       hibernate:
         default_schema: candidate
@@ -27,11 +27,11 @@ spring:
         revision_sequence_name: candidate_history.revinfo_seq
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    schemas: candidate,candidate_history
-    locations: classpath:db/migration
+#  flyway:
+#    enabled: true
+#    baseline-on-migrate: true
+#    schemas: candidate,candidate_history
+#    locations: classpath:db/migration
 
   kafka:
     bootstrap-servers: localhost:9092

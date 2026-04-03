@@ -13,6 +13,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+    networks:
+      - shared-network
 
   keycloak-postgres:
     image: postgres:latest
@@ -27,8 +29,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 20
+    networks:
+      - shared-network
 
-    # Для прометеуса експортим данные
   candidate-postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
     container_name: candidate-postgres-exporter
@@ -79,7 +82,6 @@ services:
       timeout: 5s
       retries: 30
 
-  #Артифактори для системы
   nexus:
     image: sonatype/nexus3:3.76.0
     container_name: nexus
@@ -96,7 +98,6 @@ services:
       timeout: 10s
       retries: 30
 
-  #Сбор метрик
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -138,9 +139,9 @@ services:
     container_name: alloy
     user: root
     ports:
-      - "9080:9080" # HTTP interface
-      - "4317:4317" # OTLP gRPC
-      - "4318:4318" # OTLP http
+      - "9080:9080"
+      - "4317:4317"
+      - "4318:4318"
     volumes:
       - ./infrastructure/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
@@ -193,7 +194,7 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /var/lib/kafka/data
@@ -209,8 +210,8 @@ services:
     image: redis:latest
     container_name: redis_container
     environment:
-       REDIS_PASSWORD: redis
-       REDIS_USER: redis
+      REDIS_PASSWORD: redis
+      REDIS_USER: redis
     ports:
       - "6379:6379"
     volumes:
@@ -243,11 +244,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongo
     volumes:
       - mongodb_data:/data/db
-      # - ./init-scripts:/docker-entrypoint-initdb.d  # Optional: custom init scripts
-#    networks:
-#      - mongodb_network
-#      shared-network:
-#        driver: bridge
+    networks:
+      - shared-network
 
 volumes:
   artifacts:
@@ -261,8 +259,6 @@ volumes:
   mongodb_data:
   kafka_data:
 
+networks:
   shared-network:
     driver: bridge
-
-
-

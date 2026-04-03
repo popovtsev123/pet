@@ -1,0 +1,17 @@
+services:
+  offer-service:
+    build: ./
+    container_name: offer-service
+    ports:
+      - "8095:8095"
+    environment:
+      MONGO_HOST: mongodb
+      MONGO_USER: mongo
+      MONGO_PASSWORD: mongo
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - pet_shared-network
+
+networks:
+  pet_shared-network:
+    external: true

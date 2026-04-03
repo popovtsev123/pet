@@ -6,9 +6,13 @@ services:
       - "8093:8093"
     environment:
       SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://candidate-postgres:5432/candidate
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     networks:
-      - shared-network
+      - pet_shared-network
 
 networks:
-  shared-network:
+  pet_shared-network:
     external: true
+    name: pet_shared-network
