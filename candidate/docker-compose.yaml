@@ -5,6 +5,10 @@ services:
     ports:
       - "8093:8093"
     environment:
+#      OTEL_EXPORTER_OTLP_ENDPOINT: http://alloy:4318
+#      OTEL_TRACES_EXPORTER: otlp
+#      OTEL_SERVICE_NAME: candidate-service
+#      OTEL_METRICS_EXPORTER: none
       SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
       SPRING_DATASOURCE_URL: jdbc:postgresql://candidate-postgres:5432/candidate
       SPRING_DATASOURCE_USERNAME: postgres

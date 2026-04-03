@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import ru.offer.calculationservice.consumer.CalculationCompletedEvent;
-import ru.offer.candidate.dto.CandidateCreatedEvent;
+import ru.offer.calculationservice.dto.CandidateCreatedEvent;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -34,17 +34,17 @@ public class CalculationService {
     private final int ABS_MULTIPLY = 1;
 
     public CalculationCompletedEvent calculate(CandidateCreatedEvent candidateCreatedEvent) {
-        String level = candidateCreatedEvent.level();
+        String level = candidateCreatedEvent.getLevel();
         double levelCoefficient = coefficients.get(level);
-        double experienceCoefficient = ABS_MULTIPLY + candidateCreatedEvent.experienceYears() * EXP_COEFFICIENT;
+        double experienceCoefficient = ABS_MULTIPLY + candidateCreatedEvent.getExperienceYears() * EXP_COEFFICIENT;
 
-        BigDecimal recommendedSalary = candidateCreatedEvent.currentSalary().
+        BigDecimal recommendedSalary = candidateCreatedEvent.getCurrentSalary().
                 multiply(BigDecimal.valueOf(levelCoefficient * experienceCoefficient * JOB_COEFFICIENT_MARKET));
 
-        redisTemplate.opsForValue().set("calculated:" + candidateCreatedEvent.id(), recommendedSalary);
+        redisTemplate.opsForValue().set("calculated:" + candidateCreatedEvent.getId(), recommendedSalary);
 
         return new CalculationCompletedEvent(
-                candidateCreatedEvent.id(),
+                candidateCreatedEvent.getId(),
                 recommendedSalary,
                 experienceCoefficient,
                 levelCoefficient,

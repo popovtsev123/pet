@@ -2,12 +2,11 @@ services:
   calculation-service:
     build:
       context: ./
-      network: host
     ports:
       - "8094:8094"
     environment:
-      SPRING_REDIS_HOST: redis_container
       SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+      SPRING_REDIS_HOST: redis_container
     networks:
       - pet_shared-network
 

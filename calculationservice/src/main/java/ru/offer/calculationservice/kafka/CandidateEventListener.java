@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 
 import ru.offer.calculationservice.consumer.CalculationCompletedEvent;
 import ru.offer.calculationservice.service.CalculationService;
-import ru.offer.candidate.dto.CandidateCreatedEvent;
+import ru.offer.calculationservice.dto.CandidateCreatedEvent;
+
 
 @Slf4j
 @Component
@@ -22,8 +23,8 @@ public class CandidateEventListener {
     public void handleCandidateCreated(CandidateCreatedEvent event) {
         log.info("Received CandidateCreatedEvent: {}", event);
 
-        if (redisTemplate.hasKey("calculated:" + event.id())) {
-            log.info("Candidate {} already processed", event.id());
+        if (redisTemplate.hasKey("calculated:" + event.getId())) {
+            log.info("Candidate {} already processed", event.getId());
             return;
         }
 

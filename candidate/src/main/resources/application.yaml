@@ -1,12 +1,11 @@
 server:
-  port: 8092
+  port: 8093
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:15432/candidate
+    url: jdbc:postgresql://candidate-postgres:5432/candidate
     username: postgres
     password: postgres
-    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -27,33 +26,31 @@ spring:
         revision_sequence_name: candidate_history.revinfo_seq
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-#  flyway:
-#    enabled: true
-#    baseline-on-migrate: true
-#    schemas: candidate,candidate_history
-#    locations: classpath:db/migration
-
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP-SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.add.type.headers: true
-        spring.json.type.mapping: candidateCreated:com.example.event.CandidateCreatedEvent
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
+        retries: 10
+        retry.backoff.ms: 1000
+    consumer:
+      group-id: candidate-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
 
 management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus
+  tracing:
+    enabled: false
 
 otel:
-  exporter:
-    otlp:
-      endpoint: http://localhost:4318
-      protocol: http/protobuf
-  logs:
-    exporter: none
-  metrics:
-    exporter: none
+  sdk:
+    disabled: true

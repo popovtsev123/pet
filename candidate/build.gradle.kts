@@ -56,7 +56,8 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions["springdocOpenapiStarterWebmvcUiVersion"]}")
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:${versions["springCloudStarterOpenfeign"]}")
 	implementation("org.springframework.kafka:spring-kafka:3.2.10")
-
+	implementation("io.micrometer:micrometer-tracing-bridge-otel")
+	implementation("io.opentelemetry:opentelemetry-exporter-otlp")
 	implementation("io.micrometer:micrometer-registry-prometheus")
 	implementation("io.github.openfeign:feign-micrometer:${versions["feignMicrometerVersion"]}")
 	implementation("io.opentelemetry:opentelemetry-exporter-otlp")

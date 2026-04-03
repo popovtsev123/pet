@@ -2,19 +2,25 @@ server:
   port: 8094
 
 spring:
+  data:
+    redis:
+      host: redis_container
+      port: 6379
+      password: redis
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP-SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
+        retries: 10
+        retry.backoff.ms: 1000
     consumer:
       group-id: calculation-service-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "*"
-
-
-redis:
-  host: ${SPRING_REDIS_HOST:localhost}
-  port: ${SPRING_REDIS_PORT:6379}
+        spring.json.trusted.packages: "ru.offer.calculationservice.dto.*"
+        spring.json.type.mapping: "ru.offer.candidate.dto.CandidateCreatedEvent:ru.offer.calculationservice.dto.CandidateCreatedEvent"

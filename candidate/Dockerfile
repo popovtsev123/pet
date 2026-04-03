@@ -24,5 +24,5 @@ FROM eclipse-temurin:24-jre
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /home/gradle/project/build/libs/app.jar app.jar
-EXPOSE 8092
+EXPOSE 8093
 CMD ["java", "-jar", "app.jar"]

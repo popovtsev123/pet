@@ -4,7 +4,7 @@ info:
   description: REST API для взаимодействия с Candidate сервисом.
   version: 1.0.0
 servers:
-  - url: http://localhost:8082
+  - url: http://localhost:8092
 
 paths:
   /v1/candidate:

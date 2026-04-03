@@ -16,72 +16,6 @@ services:
     networks:
       - shared-network
 
-  keycloak-postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
-      POSTGRES_DB: keycloak
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -p5432" ]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-    networks:
-      - shared-network
-
-  candidate-postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: candidate-postgres-exporter
-    depends_on:
-      candidate-postgres:
-        condition: service_healthy
-    environment:
-      DATA_SOURCE_NAME: postgresql://postgres:postgres@candidate-postgres:5432/postgres?sslmode=disable
-    ports:
-      - "9188:9187"
-
-  keycloak-postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:latest
-    container_name: keycloak-postgres-exporter
-    depends_on:
-      candidate-postgres:
-        condition: service_healthy
-    environment:
-      DATA_SOURCE_NAME: postgresql://keycloak:keycloak@candidate-postgres:5432/postgres?sslmode=disable
-    ports:
-      - "9189:9187"
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.2
-    container_name: individuals-keycloak
-    command: start-dev --import-realm --metrics-enabled=true
-    ports:
-      - "8082:8082"
-      - "9000:9000"
-    environment:
-      JAVA_OPTS: -Dkeycloak.migration.usersExportStrategy=REALM_FILE
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
-      KC_METRICS_ENABLED: "true"
-      KC_HEALTH_ENABLED: "true"
-    volumes:
-      - ./infrastructure/keycloak/realm-config.json:/opt/keycloak/data/import/realm-config.json
-    depends_on:
-      keycloak-postgres:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -fsS http://localhost:9000/health/ready || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-
   nexus:
     image: sonatype/nexus3:3.76.0
     container_name: nexus
@@ -194,7 +128,7 @@ services:
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LOG_DIRS: /var/lib/kafka/data

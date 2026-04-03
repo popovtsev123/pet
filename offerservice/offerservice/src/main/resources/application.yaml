@@ -1,5 +1,5 @@
 server:
-  port: 8094
+  port: 8095
 
 spring:
   application:
@@ -22,7 +22,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: calculationCompleted:ru.pet.offerservice.dto.CalculationCompletedEvent
+        spring.json.type.mapping: "ru.offer.calculationservice.consumer.CalculationCompletedEvent:ru.pet.offerservice.dto.CalculationCompletedEvent"
 
 logging:
   level:
